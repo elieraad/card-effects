@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Book</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background: #1a1a1a;
+        font-family: "Arial", sans-serif;
+        perspective: 3000px;
+      }
+
+      .book {
+        width: 300px;
+        height: 400px;
+        position: relative;
+        transform-style: preserve-3d;
+        transform: rotateX(10deg) rotateY(-30deg) translateX(150px);
+        transition: transform 0.5s;
+      }
+
+      .book.opened {
+        transform: rotateX(10deg) rotateY(0deg) translateX(0px);
+      }
+
+      .book-content {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.5s;
+      }
+
+      /* Cover */
+      .cover {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-origin: 0 50%;
+        transform-style: preserve-3d;
+        transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+        background: linear-gradient(45deg, #2c3e50, #3498db);
+        border-radius: 2px;
+        box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2);
+        z-index: 4;
+      }
+
+      .book.opened .cover {
+        transform: rotateY(-160deg);
+      }
+
+      /* Pages */
+      .page {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-origin: 0 50%;
+        transform-style: preserve-3d;
+        transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+        background: #f8f9fa;
+        border-radius: 2px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        z-index: 2;
+      }
+
+      .page-front,
+      .page-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        backface-visibility: hidden;
+        background: #fff;
+        transform-style: preserve-3d;
+      }
+
+      .page-back {
+        transform: rotateY(180deg);
+        background: #f8f9fa;
+      }
+
+      /* Last page */
+      .last-page {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        right: 0;
+        transform-origin: left;
+        transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+        background: #fff;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1;
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .book:not(.opened):not(.closing) .page {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .book.opened .page {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* Page ordering */
+      .cover-page {
+        z-index: 3;
+      }
+
+      .book.opened .cover-page {
+        transform: rotateY(-150deg);
+      }
+
+      /* Cover Content */
+      .cover-content {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+        color: white;
+        text-align: center;
+        backface-visibility: hidden;
+      }
+
+      .title {
+        font-size: 2em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .subtitle {
+        font-size: 1.2em;
+        opacity: 0.8;
+      }
+
+      /* Page Content */
+      .page-content {
+        padding: 20px;
+        color: #333;
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
+      }
+
+      .nft-placeholder {
+        background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+        border-radius: 5px;
+        padding-bottom: 100%;
+      }
+
+      .page-number {
+        position: absolute;
+        bottom: 20px;
+        font-style: italic;
+        color: #999;
+      }
+
+      .instructions {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        opacity: 0.7;
+        font-size: 0.9em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="book" id="book">
+      <div class="book-content">
+        <!-- Cover Page -->
+        <div class="page cover-page">
+          <div class="page-back">
+            <div class="page-content">
+              <h2>About This Collection</h2>
+              <p>
+                This collection represents the future of digital ownership and
+                creativity...
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 1 -->
+        <div class="page page-1">
+          <div class="page-front">
+            <div class="page-content">
+              <h2>NFT 1</h2>
+              <div class="nft-placeholder"></div>
+            </div>
+          </div>
+          <div class="page-back">
+            <div class="page-content">
+              <h2>NFT 2</h2>
+              <div class="nft-placeholder"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 2 -->
+        <div class="page page-2">
+          <div class="page-front">
+            <div class="page-content">
+              <h2>NFT 3</h2>
+              <div class="nft-placeholder"></div>
+            </div>
+          </div>
+          <div class="page-back">
+            <div class="page-content">
+              <h2>NFT 4</h2>
+              <div class="nft-placeholder"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 2 -->
+        <div class="page page-3">
+          <div class="page-front">
+            <div class="page-content">
+              <h2>NFT 5</h2>
+              <div class="nft-placeholder"></div>
+            </div>
+          </div>
+          <div class="page-back">
+            <div class="page-content">
+              <h2>NFT 6</h2>
+              <div class="nft-placeholder"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Last Page -->
+        <div class="page last-page">
+          <div class="page-front">
+            <div class="page-content">
+              <h2>The End</h2>
+              <p>Buy more packs on gape store to collect more NFTs</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cover -->
+        <div class="cover">
+          <div class="cover-content">
+            <div class="title">My NFT Collection</div>
+            <div class="subtitle">Digital Art Treasury</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="instructions">Click to open/close the book</div>
+
+    <script>
+      const pageSize = 5;
+      const book = document.getElementById("book");
+      const pages = document.querySelectorAll(".page");
+
+      let currentPage = 1;
+
+      book.addEventListener("click", () => {
+        if (!book.classList.contains("opened")) {
+          book.classList.add("opened");
+          pages[currentPage].style.zIndex = 3;
+          return;
+        }
+
+        if (currentPage === pageSize - 1) {
+          book.classList.remove("opened");
+          book.classList.add("closing");
+          currentPage = 1;
+          setTimeout(() => {
+            book.classList.remove("closing");
+            for (let i = pages.length - 1; i >= 0; i--) {
+              pages[i].style.transform = ""; // Reset transforms
+              pages[i].style.zIndex = ""; // Reset z-index
+            }
+          }, 20);
+
+          return;
+        }
+
+        pages[currentPage].style.transform = "rotateY(-150deg)";
+        setTimeout(() => {
+          pages[currentPage + 1].style.zIndex = 3;
+          currentPage++;
+        }, 20);
+      });
+    </script>
+  </body>
+</html>
